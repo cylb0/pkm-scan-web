@@ -1,0 +1,13 @@
+# Python
+__pycache__
+.env
+
+# IDE
+.vscode
+.idea
+
+# Docker
+*.log
+
+# Database
+*.sqlite3
