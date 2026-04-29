@@ -16,10 +16,10 @@ services:
     restart: always
 
   api:
-    build: ./services/api-gateway
+    build: ./services/api_gateway
     container_name: pkmscan-api
     volumes:
-      - ./services/api-gateway:/app
+      - ./services/api_gateway:/app
       - ~/.aws:/root/.aws
     env_file:
       - .env
@@ -33,10 +33,10 @@ services:
       - "8000:8000"
 
   processor:
-    build: ./services/image-lab
+    build: ./services/image_lab
     container_name: pkmscan-processor
     volumes:
-      - ./services/image-lab:/app
+      - ./services/image_lab:/app
       - ~/.aws:/root/.aws
     env_file:
       - .env
