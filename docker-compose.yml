@@ -26,6 +26,8 @@ services:
       - .env
     environment:
       - AWS_PROFILE=${AWS_PROFILE_WEB}
+      - AWS_STORAGE_BUCKET=${AWS_STORAGE_BUCKET}
+      - AWS_QUEUE_URL=${AWS_QUEUE_URL}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:
       - db
@@ -44,6 +46,8 @@ services:
       - .env
     environment:
       - AWS_PROFILE=${AWS_PROFILE_PROCESSOR}
+      - AWS_STORAGE_BUCKET=${AWS_STORAGE_BUCKET}
+      - AWS_QUEUE_URL=${AWS_QUEUE_URL}
     depends_on:
       - redis
 
