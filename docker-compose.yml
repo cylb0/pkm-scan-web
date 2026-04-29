@@ -20,6 +20,7 @@ services:
     container_name: pkmscan-api
     volumes:
       - ./services/api_gateway:/app
+      - ./aws_shared:/app/aws_shared
       - ~/.aws:/root/.aws
     env_file:
       - .env
@@ -37,6 +38,7 @@ services:
     container_name: pkmscan-processor
     volumes:
       - ./services/image_lab:/app
+      - ./aws_shared:/app/aws_shared
       - ~/.aws:/root/.aws
     env_file:
       - .env
