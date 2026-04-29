@@ -1,3 +1,4 @@
 boto3
 opencv-python-headless
 numpy
+pydantic
