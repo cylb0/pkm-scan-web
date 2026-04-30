@@ -6,6 +6,10 @@ FOLDER_MEDIA = "media"
 
 
 def get_s3_img_key(
-    folder: str, expansion: str, lang: SupportedLanguage, card_id: str, extension: str
+    folder: str,
+    expansion: str,
+    lang: SupportedLanguage,
+    card_id: str,
+    extension: str = "png",
 ) -> str:
     return f"{folder}/{expansion}/{lang.value}/{card_id}.{extension}"

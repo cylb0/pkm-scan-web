@@ -26,6 +26,7 @@ services:
       - .env
     environment:
       - AWS_PROFILE=${AWS_PROFILE_WEB}
+      - AWS_REGION_NAME=${AWS_REGION_NAME}
       - AWS_STORAGE_BUCKET=${AWS_STORAGE_BUCKET}
       - AWS_QUEUE_URL=${AWS_QUEUE_URL}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
@@ -36,16 +37,17 @@ services:
       - "8000:8000"
 
   processor:
-    build: ./services/image_lab
+    build: ./services/img_processor
     container_name: pkmscan-processor
     volumes:
-      - ./services/image_lab:/app
+      - ./services/img_processor:/app
       - ./aws_shared:/app/aws_shared
       - ~/.aws:/root/.aws
     env_file:
       - .env
     environment:
       - AWS_PROFILE=${AWS_PROFILE_PROCESSOR}
+      - AWS_REGION_NAME=${AWS_REGION_NAME}
       - AWS_STORAGE_BUCKET=${AWS_STORAGE_BUCKET}
       - AWS_QUEUE_URL=${AWS_QUEUE_URL}
     depends_on:
