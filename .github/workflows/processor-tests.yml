@@ -14,7 +14,7 @@ on:
       - 'aws_shared/**'
 
 jobs:
-  test:
+  test-processor:
     runs-on: ubuntu-latest
 
     steps:
