@@ -39,5 +39,22 @@ class AWSClientManager:
             QueueUrl=target_queue_url, MessageBody=task.model_dump_json()
         )
 
+    def receive_message(self, queue_url=None):
+        target_queue_url = queue_url or self.default_queue_url
+        if not target_queue_url:
+            raise ValueError("AWS_QUEUE_URL environment variable not set")
+        response = self.sqs.receive_message(
+            QueueUrl=target_queue_url, MaxNumberOfMessages=1, WaitTimeSeconds=20
+        )
+        return response.get("Messages", [])
+
+    def delete_message(self, receipt_handle: str, queue_url=None):
+        target_queue_url = queue_url or self.default_queue_url
+        if not target_queue_url:
+            raise ValueError("AWS_QUEUE_URL environment variable not set")
+        return self.sqs.delete_message(
+            QueueUrl=target_queue_url, ReceiptHandle=receipt_handle
+        )
+
 
 aws_client = AWSClientManager()
