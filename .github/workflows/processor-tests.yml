@@ -2,9 +2,16 @@ name: PKMScan CI - Processor Tests
 
 on:
   push:
-    branches: [ "**" ] # Runs on every branch
+    branches: [ "**" ]
+    paths:
+      - 'services/img_processor/**'
+      - 'aws_shared/**'
+      - '.github/workflows/processor-tests.yml'
   pull_request:
-    branches: [ "main" ] # Runs when merging to main
+    branches: [ "main" ]
+    paths:
+      - 'services/img_processor/**'
+      - 'aws_shared/**'
 
 jobs:
   test:
