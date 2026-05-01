@@ -2,6 +2,11 @@ import numpy
 import cv2
 from errors.processing import PokemonCardDetectionError
 
+CARD_ASPECT_RATIO = 63 / 88  # ~0.716  short/long
+ASPECT_TOLERANCE = 0.08
+MIN_CARD_AREA_RATIO = 0.05
+AXIS_ALIGNMENT_THRESHOLD = 0.05
+
 
 def crop_card_border(input_path: str) -> numpy.ndarray:
     """Isolates a pokemon card within an image by detecting its yellow border.
@@ -15,10 +20,89 @@ def crop_card_border(input_path: str) -> numpy.ndarray:
     return detect_and_crop_yellow_border(img)
 
 
-def save_as_webp(img_array: numpy.ndarray, output_path: str, quality: int = 90):
-    success = cv2.imwrite(output_path, img_array, [cv2.IMWRITE_WEBP_QUALITY, quality])
-    if not success:
-        raise IOError("Failed to write WebP image to {output_path}")
+def _compute_perspective_matrix(
+    pts: numpy.ndarray, width: int, height: int
+) -> numpy.ndarray:
+    """
+    Computes a transformation matrix by:
+        - Ordering all 4 corners
+        - Using vector norms to define output dimensions
+        - Mapping original quad to a perfect rectangle
+    Returns:
+        Transformation matrix to cancel perspective
+    """
+    # Perfect rectangle
+    dst = numpy.array(
+        [[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]],
+        dtype=numpy.float32,
+    )
+
+    return cv2.getPerspectiveTransform(pts, dst)
+
+
+def _compute_card_dimension(quad: numpy.ndarray) -> tuple[numpy.ndarray, int, int]:
+    """
+    Orders 4 points of the quad and uses norm vector to compute card output dimensions
+    """
+    pts = _order_quad_points(quad.reshape(4, 2).astype(numpy.float32))
+    tl, tr, br, bl = pts
+
+    width = int(max(numpy.linalg.norm(br - bl), numpy.linalg.norm(tr - tl)))
+    height = int(max(numpy.linalg.norm(tr - br), numpy.linalg.norm(tl - bl)))
+
+    return pts, width, height
+
+
+def _is_axis_aligned(pts: numpy.ndarray, width: int, height: int) -> bool:
+    """
+    Uses variations between opposing sides (norm vectors) to decides wether a
+    card is tilted by perspective or not
+    Returns true if the card is aligned
+    """
+    tl, tr, br, bl = pts
+    horizontal_deviation = (
+        abs(numpy.linalg.norm(tr - tl) - numpy.linalg.norm(br - bl)) / width
+    )
+    vertical_deviation = (
+        abs(numpy.linalg.norm(tr - br) - numpy.linalg.norm(tl - bl)) / height
+    )
+
+    return (
+        horizontal_deviation < AXIS_ALIGNMENT_THRESHOLD
+        and vertical_deviation < AXIS_ALIGNMENT_THRESHOLD
+    )
+
+
+def _straighten_card(img: numpy.ndarray, quad: numpy.ndarray) -> numpy.ndarray:
+    """
+    Straighten a tilted card by:
+        - Computing dimensions
+        - Falling back to simple boundingRect logic if card is already axis aligned
+        - Computing and applying a transformation matrix
+    """
+    pts, width, height = _compute_card_dimension(quad)
+
+    if _is_axis_aligned(pts, width, height):
+        x, y, w, h = cv2.boundingRect(quad)
+        return img[y : y + h, x : x + w]
+
+    m = _compute_perspective_matrix(pts, width, height)
+    return cv2.warpPerspective(img, m, (width, height))
+
+
+def _order_quad_points(pts: numpy.ndarray) -> numpy.ndarray:
+    """
+    Sorts 4 points by:
+        - Retrieving a centroid for those points
+        - Calculateing how far each point is from center
+        - Converting distances into angles
+        - Sorting input points by angle
+    Returns: [top-left, top-right, bottom-right, bottom-left]
+    """
+    centroid = pts.mean(axis=0)
+    angles = numpy.arctan2(pts[:, 1] - centroid[1], pts[:, 0] - centroid[0])
+    ordered_indices = numpy.argsort(angles)
+    return pts[ordered_indices].astype(numpy.float32)
 
 
 def detect_and_crop_yellow_border(img: numpy.ndarray) -> numpy.ndarray:
