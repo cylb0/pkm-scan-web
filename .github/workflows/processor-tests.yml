@@ -32,7 +32,7 @@ jobs:
             echo "POSTGRES_PASSWORD=pass" >> .env
             echo "AWS_REGION_NAME=us-east-1" >> .env
             echo "AWS_STORAGE_BUCKET=dummy-bucket" >> .env
-            echo "AWS_QUEUE_URL=https://sqs.dummy.url" >> .env
+            echo "AWS_RAW_IMG_QUEUE_URL=https://sqs.dummy.url" >> .env
 
       - name: Build and Run Tests
         run: |
