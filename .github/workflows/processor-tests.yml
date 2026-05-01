@@ -2,12 +2,19 @@ name: PKMScan CI - Processor Tests
 
 on:
   push:
-    branches: [ "**" ] # Runs on every branch
+    branches: [ "**" ]
+    paths:
+      - 'services/img_processor/**'
+      - 'aws_shared/**'
+      - '.github/workflows/processor-tests.yml'
   pull_request:
-    branches: [ "main" ] # Runs when merging to main
+    branches: [ "main" ]
+    paths:
+      - 'services/img_processor/**'
+      - 'aws_shared/**'
 
 jobs:
-  test:
+  test-processor:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +32,7 @@ jobs:
             echo "POSTGRES_PASSWORD=pass" >> .env
             echo "AWS_REGION_NAME=us-east-1" >> .env
             echo "AWS_STORAGE_BUCKET=dummy-bucket" >> .env
-            echo "AWS_QUEUE_URL=https://sqs.dummy.url" >> .env
+            echo "AWS_RAW_IMG_QUEUE_URL=https://sqs.dummy.url" >> .env
 
       - name: Build and Run Tests
         run: |

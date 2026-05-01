@@ -1,6 +1,7 @@
 import logging
 import sys
 from tasks import process_messages
+from aws_shared.aws_clients import QueueAlias
 
 logging.basicConfig(
     level=logging.INFO,
@@ -17,7 +18,9 @@ def poll_and_process(max_empty_polls):
     logger.info("Polling starts")
 
     while empty_polls < max_empty_polls:
-        messages = aws_client.receive_message()
+        messages = aws_client.receive_message(
+            QueueAlias.RAW_IMAGES, wait_time_seconds=10
+        )
 
         if not messages:
             empty_polls += 1
