@@ -4,7 +4,7 @@ from aws_shared.schemas import ImageTask
 from aws_shared.constants import FOLDER_MEDIA, get_s3_img_key
 from aws_shared.aws_clients import AWSClientManager, QueueAlias
 from errors.processing import PokemonCardDetectionError
-from processor import crop_card_border
+from processor import crop_card_border, save_as_webp
 
 logger = logging.getLogger(__name__)
 
@@ -15,14 +15,18 @@ def process_image(task: ImageTask, client: AWSClientManager):
 
     This handler manages local temporary files and coordinates between S3 storage and the CV cropping logic.
     """
-    local_raw_path = f"/tmp/{task.card_id}_raw.{task.s3_key.split('.')[-1]}"
+    original_extension = os.path.splitext(task.s3_key)[1].lower()
+    local_raw_path = f"/tmp/{task.card_id}_raw{original_extension}"
+
     local_processed_path = f"/tmp/{task.card_id}_processed.webp"
 
     try:
         logger.info(f"Processing image for card {task.card_id}")
         client.download_file(task.s3_key, local_raw_path)
 
-        crop_card_border(local_raw_path, local_processed_path)
+        cropped_array = crop_card_border(local_raw_path)
+
+        save_as_webp(cropped_array, local_processed_path)
 
         processed_key = get_s3_img_key(
             FOLDER_MEDIA,

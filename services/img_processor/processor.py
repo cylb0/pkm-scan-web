@@ -3,22 +3,29 @@ import cv2
 from errors.processing import PokemonCardDetectionError
 
 
-def crop_card_border(input_path: str, output_path: str):
+def crop_card_border(input_path: str) -> numpy.ndarray:
     """Isolates a pokemon card within an image by detecting its yellow border.
     Raises:
-        PokemonCardDetectionError:  If no yellow contours are found or the detected area is too small to be a card.
+        ValueError if OpenCV can't read input
     """
     img = cv2.imread(input_path)
-
     if img is None:
         raise ValueError(f"Failed to read image at {input_path}")
 
-    cropped_img = detect_and_crop_yellow_border(img)
+    return detect_and_crop_yellow_border(img)
 
-    cv2.imwrite(output_path, cropped_img)
+
+def save_as_webp(img_array: numpy.ndarray, output_path: str, quality: int = 90):
+    success = cv2.imwrite(output_path, img_array, [cv2.IMWRITE_WEBP_QUALITY, quality])
+    if not success:
+        raise IOError("Failed to write WebP image to {output_path}")
 
 
 def detect_and_crop_yellow_border(img: numpy.ndarray) -> numpy.ndarray:
+    """
+    Raises:
+    PokemonCardDetectionError:  If no yellow contours are found or the detected area is too small to be a card.
+    """
     # 1. HSV isolation: Targets the yellow border specifically.
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     lower_yellow = numpy.array([20, 150, 150])
