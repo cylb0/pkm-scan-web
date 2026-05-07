@@ -12,3 +12,17 @@ __pycache__
 
 # Database
 *.sqlite3
+
+# Machine Learning
+ml_trainer/dataset/
+ml_trainer/experiments/
+ml_trainer/models/
+ml_trainer/results/
+ml_trainer/runs/
+ml_trainer/*.jpg
+ml_trainer/*.jpeg
+ml_trainer/*.png
+ml_trainer/*.webp
+*.pt
+*.onnx
+*.engine
