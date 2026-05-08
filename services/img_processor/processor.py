@@ -20,6 +20,13 @@ def crop_card_border(input_path: str) -> numpy.ndarray:
     return detect_and_crop_yellow_border(img)
 
 
+def save_as_webp(img: numpy.ndarray, output_path: str, quality: int = 100) -> None:
+    success = cv2.imwrite(output_path, img, [int(cv2.IMWRITE_WEBP_QUALITY), quality])
+
+    if not success:
+        raise RuntimeError(f"Failed to save WebP image to {output_path}")
+
+
 def _compute_perspective_matrix(
     pts: numpy.ndarray, width: int, height: int
 ) -> numpy.ndarray:
