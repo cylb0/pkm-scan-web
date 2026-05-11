@@ -4,8 +4,8 @@ import sys
 
 
 def download_model():
-    s3_key = os.getenv("YOLO_S3_SEG_MODEL_KEY")
-    local_path = os.getenv("YOLO_SEG_MODEL_LOCAL_PATH")
+    s3_key = os.getenv("YOLO_SEG_MODEL_S3KEY")
+    local_path = os.getenv("YOLO_SEG_MODEL_LOCALPATH")
 
     if not s3_key or not local_path:
         print(
