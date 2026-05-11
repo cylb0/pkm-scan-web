@@ -16,10 +16,12 @@ def order_quad_points(pts: np.ndarray) -> np.ndarray:
     Returns:
         A float32 numpy array of points ordered clockwise.
     """
+    if pts.shape[0] != 4:
+        raise ValueError("Input must contain 4 points")
+
     centroid = pts.mean(axis=0)
     angles = np.arctan2(pts[:, 1] - centroid[1], pts[:, 0] - centroid[0])
-    ordered_indices = np.argsort(angles)
-    return pts[ordered_indices].astype(np.float32)
+    return pts[np.argsort(angles)].astype(np.float32)
 
 
 def get_perspective_matrix(pts: np.ndarray, width: int, height: int) -> np.ndarray:
