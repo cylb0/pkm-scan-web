@@ -2,6 +2,8 @@ import logging
 import sys
 from tasks import process_messages
 from aws_shared.aws_clients import QueueAlias
+import os
+from pokemon_card_processor import PokemonCardProcessor
 
 logging.basicConfig(
     level=logging.INFO,
@@ -11,7 +13,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def poll_and_process(max_empty_polls):
+def poll_and_process(processor: PokemonCardProcessor, max_empty_polls: int):
     from aws_shared.aws_clients import aws_client
 
     empty_polls = 0
@@ -30,14 +32,16 @@ def poll_and_process(max_empty_polls):
         empty_polls = 0
         logger.info(f"Processing {len(messages)} messages")
 
-        process_messages(messages, aws_client)
+        process_messages(messages, aws_client, processor)
 
     logger.info("No messages for a while, stopping worker")
 
 
 def run():
     logger.info("Starting image lab worker")
-    poll_and_process(5)
+    model_path = os.getenv("YOLO_SEG_MODEL_LOCALPATH")
+    processor = PokemonCardProcessor(model_path)
+    poll_and_process(processor, 5)
 
 
 if __name__ == "__main__":

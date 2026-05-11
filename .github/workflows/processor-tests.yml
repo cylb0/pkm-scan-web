@@ -33,7 +33,9 @@ jobs:
             echo "AWS_REGION_NAME=us-east-1" >> .env
             echo "AWS_STORAGE_BUCKET=dummy-bucket" >> .env
             echo "AWS_RAW_IMG_QUEUE_URL=https://sqs.dummy.url" >> .env
+            
 
       - name: Build and Run Tests
         run: |
-          docker compose run --rm processor python3 -m unittest discover tests
+          docker compose run --rm --entrypoint "" processor \
+            python3 -m pytest tests -v
