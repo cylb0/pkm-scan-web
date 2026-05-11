@@ -4,3 +4,4 @@ opencv-stubs
 numpy
 pydantic
 ultralytics
+pytest
