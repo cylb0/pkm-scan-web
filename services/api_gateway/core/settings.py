@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "catalog",
 ]
 
 MIDDLEWARE = [
@@ -111,5 +112,21 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
+# AWS S3 Configuration
+AWS_STORAGE_BUCKET = os.getenv("AWS_STORAGE_BUCKET")
+AWS_REGION_NAME = os.getenv("AWS_REGION_NAME")
+AWS_QUERYSTRING_AUTH = False
+AWS_STATIC_LOCATION = "static"
 
-STATIC_URL = "static/"
+STATIC_URL = f"https://{AWS_STORAGE_BUCKET}.s3.{AWS_REGION_NAME}.amazonaws.com/{AWS_STATIC_LOCATION}/"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {"location": "media"},
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+        "OPTIONS": {"location": "static"},
+    },
+}

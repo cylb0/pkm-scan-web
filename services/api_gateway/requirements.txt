@@ -5,3 +5,4 @@ django-redis
 psycopg2-binary
 dj-database-url
 pydantic
+pillow
