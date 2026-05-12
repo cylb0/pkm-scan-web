@@ -113,12 +113,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 # AWS S3 Configuration
-AWS_STORAGE_BUCKET = os.getenv("AWS_STORAGE_BUCKET")
-AWS_REGION_NAME = os.getenv("AWS_REGION_NAME")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET")
+AWS_S3_REGION_NAME = os.getenv("AWS_REGION_NAME")
+AWS_PROFILE = os.getenv("AWS_PROFILE")
+
 AWS_QUERYSTRING_AUTH = False
 AWS_STATIC_LOCATION = "static"
 
-STATIC_URL = f"https://{AWS_STORAGE_BUCKET}.s3.{AWS_REGION_NAME}.amazonaws.com/{AWS_STATIC_LOCATION}/"
+STATIC_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/{AWS_STATIC_LOCATION}/"
 
 STORAGES = {
     "default": {
