@@ -23,6 +23,7 @@ class LocalizedExpansion(models.Model):
     language = models.CharField(max_length=2, choices=SupportedLanguage.to_choices())
     name = models.CharField(max_length=100)
     release_date = models.DateField(null=True, blank=True)
+    total_cards = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ("expansion", "language")

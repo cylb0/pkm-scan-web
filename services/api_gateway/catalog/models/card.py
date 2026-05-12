@@ -98,8 +98,17 @@ class LocalizedCard(models.Model):
         default=SupportedLanguage.EN,
     )
     name = models.CharField(max_length=100)
-    number = models.CharField(max_length=10)
+    number = models.CharField(max_length=10, help_text="e.g. 'H28', '40'")
+    total_cards_override = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Specific total for a group (e.g. 32 for Aquapolis Holos)",
+    )
     description = models.TextField(blank=True, null=True)
+
+    def get_full_number(self, expansion_total):
+        total = self.total_cards_override or expansion_total
+        return f"{self.number}/{total}"
 
     class Meta:
         unique_together = ("card", "language")
