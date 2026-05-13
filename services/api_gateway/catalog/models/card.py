@@ -33,16 +33,16 @@ class Card(models.Model):
         STADIUM = "stadium", "Stadium"
         SPECIAL = "special", "Special"
 
+    internal_name = models.CharField(max_length=150, unique=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
+
     supertype = models.CharField(
         max_length=20, choices=SuperType.choices, default=SuperType.POKEMON
     )
     subtype = models.CharField(max_length=20, choices=SubType.choices, blank=True)
-    expansion = models.ForeignKey(
-        Expansion, on_delete=models.CASCADE, related_name="cards"
-    )
-    slug = models.SlugField(max_length=100, unique=True, blank=True)
     hp = models.IntegerField(null=True, blank=True)
     retreat_cost = models.IntegerField(default=0)
+
     types = models.ManyToManyField(EnergyType, related_name="cards", blank=True)
     weak_type = models.ForeignKey(
         EnergyType,
@@ -61,26 +61,22 @@ class Card(models.Model):
     )
     resist_value = models.CharField(max_length=10, blank=True, help_text="e.g. -20")
 
-    def __str__(self):
-        loc = self.localizations.filter(language=SupportedLanguage.EN).first()
-        name = loc.name if loc else "Unknown"
-        return f"{name} - {self.expansion.code}"
-
     def save(self, *args, **kwargs):
-        if self.pk is None:
-            super().save(*args, **kwargs)
-
         if not self.slug:
-            self.slug = slugify(f"{self.expansion.code}-{self.pk}")
-            super().save(update_fields=["slug"])
-        else:
-            super().save(*args, **kwargs)
+            self.slug = slugify(self.internal_name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.internal_name
 
 
 class CardPrinting(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name="printings")
     variant = models.ForeignKey(
         CardVariant, on_delete=models.PROTECT, related_name="printings"
+    )
+    expansion = models.ForeignKey(
+        Expansion, on_delete=models.CASCADE, related_name="cards"
     )
     rarity = models.CharField(max_length=50)
     master_image = models.ImageField(upload_to="cards/master/", null=True, blank=True)
@@ -107,9 +103,26 @@ class LocalizedCard(models.Model):
     )
     description = models.TextField(blank=True, null=True)
 
-    def get_full_number(self, expansion_total):
-        total = self.total_cards_override or expansion_total
+    @property
+    def hp(self):
+        return self.printing.card.hp
+
+    @property
+    def expansion(self):
+        return self.printing.expansion
+
+    @property
+    def variant_name(self):
+        return self.printing.variant
+
+    @property
+    def full_number(self):
+        total = self.total_cards_override or self.printing.expansion.total_cards
         return f"{self.number}/{total}"
+
+    @property
+    def image(self):
+        return self.printing.master_image
 
     class Meta:
         unique_together = ("printing", "language")

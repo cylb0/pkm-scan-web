@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 from nested_admin import NestedModelAdmin, NestedTabularInline, NestedStackedInline
 from ..models import (
     CardVariant,
@@ -12,7 +11,6 @@ from ..models import (
     LocalizedAbility,
     Ability,
 )
-from aws_shared.languages import SupportedLanguage
 import json
 
 
@@ -57,32 +55,35 @@ class CardPrintingInline(NestedTabularInline):
     model = CardPrinting
     extra = 1
     inlines = [LocalizedCardInline]
-    fields = ("variant", "rarity", "master_image")
+    fields = ("expansion", "variant", "rarity", "master_image")
     verbose_name = "Printing variation"
     verbose_name_plural = "Printing variations"
 
 
 @admin.register(Card)
 class CardAdmin(NestedModelAdmin):
-    list_display = ("get_name", "expansion", "supertype", "subtype", "hp")
-    list_filter = ("expansion", "supertype", "subtype", "types")
-    search_fields = ("localizations__name", "expansion__code", "slug")
+    list_display = ("internal_name", "get_expansions", "supertype", "subtype", "hp")
+    list_filter = ("printings__expansion", "supertype", "subtype", "types")
+    search_fields = (
+        "internal_name",
+        "printings__localizations__name",
+        "slug",
+    )
 
     inlines = [AbilityInline, AttackInline, CardPrintingInline]
 
-    def get_name(self, instance):
-        loc = instance.localizations.filter(language=SupportedLanguage.EN).first()
-        name = loc.name if loc else "No default english name"
-        return name
+    def get_expansions(self, instance):
+        codes = instance.printings.values_list("expansion__code", flat=True).distinct()
+        return ", ".join(codes) if codes else "No expansions"
 
-    get_name.short_description = "Name (EN)"
+    get_expansions.short_description = "Expansions"
 
     fieldsets = (
         (
             "General information",
             {
                 "fields": (
-                    "expansion",
+                    "internal_name",
                     "slug",
                     "supertype",
                     "subtype",
@@ -113,9 +114,10 @@ class CardAdmin(NestedModelAdmin):
             "ENERGY": Card.SuperType.ENERGY.value,
             "TRAINER": Card.SuperType.TRAINER.value,
         }
-        form.base_fields["supertype"].widget.attrs["data-supertypes"] = json.dumps(
-            constants
-        )
+        if "supertype" in form.base_fields:
+            form.base_fields["supertype"].widget.attrs["data-supertypes"] = json.dumps(
+                constants
+            )
         return form
 
 
