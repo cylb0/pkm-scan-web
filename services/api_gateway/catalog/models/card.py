@@ -89,8 +89,8 @@ class CardPrinting(models.Model):
 
 
 class LocalizedCard(models.Model):
-    card = models.ForeignKey(
-        Card, on_delete=models.CASCADE, related_name="localizations"
+    printing = models.ForeignKey(
+        CardPrinting, on_delete=models.CASCADE, related_name="localizations"
     )
     language = models.CharField(
         max_length=2,
@@ -111,7 +111,7 @@ class LocalizedCard(models.Model):
         return f"{self.number}/{total}"
 
     class Meta:
-        unique_together = ("card", "language")
+        unique_together = ("printing", "language")
 
     def __str__(self):
         return f"{self.name} ({self.number}) - {self.language.upper()}"
