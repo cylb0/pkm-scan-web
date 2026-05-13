@@ -28,7 +28,8 @@ class Card(models.Model):
         BASIC = "basic", "Basic"
         STAGE_1 = "stage-1", "Stage 1"
         STAGE_2 = "stage-2", "Stage 2"
-        TRAINER = "trainer", "Trainer"
+        ITEM = "item", "Item"
+        SUPPORTER = "supporter", "Supporter"
         STADIUM = "stadium", "Stadium"
         SPECIAL = "special", "Special"
 
