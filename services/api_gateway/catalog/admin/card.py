@@ -69,6 +69,7 @@ class CardAdmin(NestedModelAdmin):
         "printings__localizations__name",
         "slug",
     )
+    prepopulated_fields = {"slug": ("internal_name",)}
 
     inlines = [AbilityInline, AttackInline, CardPrintingInline]
 
