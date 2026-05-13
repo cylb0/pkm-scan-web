@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from nested_admin import NestedModelAdmin, NestedTabularInline, NestedStackedInline
 from ..models import (
     CardVariant,
@@ -12,6 +13,7 @@ from ..models import (
     Ability,
 )
 from aws_shared.languages import SupportedLanguage
+import json
 
 
 class LocalizedAttackInline(NestedTabularInline):
@@ -100,6 +102,21 @@ class CardAdmin(NestedModelAdmin):
             },
         ),
     )
+
+    class Media:
+        js = ("js/card_field_toggles.js",)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        constants = {
+            "POKEMON": Card.SuperType.POKEMON.value,
+            "ENERGY": Card.SuperType.ENERGY.value,
+            "TRAINER": Card.SuperType.TRAINER.value,
+        }
+        form.base_fields["supertype"].widget.attrs["data-supertypes"] = json.dumps(
+            constants
+        )
+        return form
 
 
 @admin.register(CardVariant)
