@@ -28,6 +28,10 @@ class Card(models.Model):
         BASIC = "basic", "Basic"
         STAGE_1 = "stage-1", "Stage 1"
         STAGE_2 = "stage-2", "Stage 2"
+
+        BASIC_ENERGY = "basic-energy", "Basic Energy"
+        SPECIAL_ENERGY = "special-energy", "Special Energy"
+
         ITEM = "item", "Item"
         SUPPORTER = "supporter", "Supporter"
         STADIUM = "stadium", "Stadium"
@@ -44,6 +48,10 @@ class Card(models.Model):
     retreat_cost = models.IntegerField(default=0)
 
     types = models.ManyToManyField(EnergyType, related_name="cards", blank=True)
+    energy_value = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Face value of the energy type"
+    )
+
     weak_type = models.ForeignKey(
         EnergyType,
         on_delete=models.PROTECT,

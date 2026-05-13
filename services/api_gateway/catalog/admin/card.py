@@ -93,7 +93,7 @@ class CardAdmin(NestedModelAdmin):
                 )
             },
         ),
-        ("Types and energy", {"fields": ("types",)}),
+        ("Types and energy", {"fields": ("types", "energy_value")}),
         (
             "Weakness & Resistance",
             {

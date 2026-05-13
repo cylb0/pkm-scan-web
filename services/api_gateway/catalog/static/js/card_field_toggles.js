@@ -11,12 +11,17 @@ document.addEventListener("DOMContentLoaded", function () {
         "#abilities-group, #attacks-group",
     );
 
-    console.log("fields", pokemonFields);
+    const energyFields = document.querySelectorAll(".field-energy_value");
 
     function toggleFields() {
-      const isPokemon = supertypeSelect.value == supertypes.POKEMON;
+      const value = supertypeSelect.value;
+      const isPokemon = value == supertypes.POKEMON;
+      const isEnergy = value == supertypes.ENERGY;
       pokemonFields.forEach((row) => {
-        if (row) row.style.display = isPokemon ? "block" : "none";
+        if (row) row.style.display = isPokemon ? "" : "none";
+      });
+      energyFields.forEach((row) => {
+        if (row) row.style.display = isEnergy ? "" : "none";
       });
     }
 
